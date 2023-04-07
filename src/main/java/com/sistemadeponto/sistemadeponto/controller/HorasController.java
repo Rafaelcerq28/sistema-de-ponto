@@ -23,6 +23,7 @@ public class HorasController {
 
     HorasService horasService;
 
+    //Adicionando horas e listando
     @PostMapping("/horas")
     @ResponseStatus(HttpStatus.CREATED)
     public Horas criarHoras(@RequestBody Horas horas){
@@ -34,5 +35,10 @@ public class HorasController {
     public List<Horas> teste(){
         return horasService.listarHoras();
     }
-    
+
+    @GetMapping("/horastrabalhadas")
+    @ResponseStatus(HttpStatus.OK)
+    public String horastrabalhadas(){
+        return horasService.somarHorasTrabalhadas();
+    }
 }

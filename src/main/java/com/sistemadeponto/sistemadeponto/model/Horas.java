@@ -1,21 +1,35 @@
 package com.sistemadeponto.sistemadeponto.model;
 
-import java.time.Duration;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "horas")
 public class Horas {
    
+    
+
     //Atributos
+    public Horas() {
+    }
+
+
+    public Horas(String dataHoraEntrada, String dataHoraSaida, Funcionario funcionario) {
+        this.dataHoraEntrada = dataHoraEntrada;
+        this.dataHoraSaida = dataHoraSaida;
+        this.funcionario = funcionario;
+    }
+
+
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -30,14 +44,22 @@ public class Horas {
     @Column(nullable = false)
     private String horasTrabalhadas;
 
+    @ManyToOne
+    @JoinColumn(name = "funcionario_id", nullable = true)
+    private Funcionario funcionario;
+
     //Getters setters
+
+    public Funcionario getFuncionario() {
+        return funcionario;
+    }
+
+    public void setFuncionario(Funcionario funcionario) {
+        this.funcionario = funcionario;
+    }
 
     public Long getId() {
         return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public String getDataHoraEntrada() {

@@ -5,27 +5,30 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.TimeZone;
 
-import org.springframework.data.jpa.repository.Query;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import com.sistemadeponto.sistemadeponto.model.Funcionario;
 import com.sistemadeponto.sistemadeponto.model.Horas;
+import com.sistemadeponto.sistemadeponto.repository.FuncionarioRepository;
 import com.sistemadeponto.sistemadeponto.repository.HorasRepository;
 
 @Service
 public class HorasService {
 
     
-    public HorasService(HorasRepository horasRepository) {
+    public HorasService(HorasRepository horasRepository, FuncionarioRepository funcionarioRepository) {
         this.horasRepository = horasRepository;
+        this.funcionarioRepository = funcionarioRepository;
     }
-
+    private FuncionarioRepository funcionarioRepository;
     private HorasRepository horasRepository;
     
     //Cria as horas no banco de dados salvando a quantidade de horas trabalhadas
@@ -33,7 +36,6 @@ public class HorasService {
 
         //Armazena as horas trabalhadas no objeto
         horas.setHorasTrabalhadas(calculaDiffHoras(horas.getDataHoraEntrada(),horas.getDataHoraSaida()));
-
         return horasRepository.save(horas);
     }
 
@@ -43,10 +45,24 @@ public class HorasService {
     }
     
     //Metodo que pega apenas as horas trabalhadas e retorna elas somadas
-    public String somarHorasTrabalhadas(){
-        List<String> horas = horasRepository.pegaHorasTrabalhadas();
+    public String somarHorasTrabalhadas(Long id){
+        Optional<Funcionario> optionalFuncionario =  funcionarioRepository.findById(id);
         
-        return somaHoras(horas);
+        //Checa se o funcionario existe
+        if(optionalFuncionario.isPresent()){
+        
+            Funcionario funcionario = optionalFuncionario.get();
+            List<String> horas = horasRepository.pegaHorasTrabalhadas(funcionario.getId());
+            
+            //Faz um update no funcionario
+            funcionario.setHorasTrabalhadas(somaHoras(horas));
+            funcionarioRepository.save(funcionario);
+        
+            return funcionario.getHorasTrabalhadas();
+        
+        }else{
+            return "User not Found";
+        }
     }
     
     //Method to read a List and sum the hours
